@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sonic-Heritage - 非遗转音乐系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --accent-color: #4CAF50;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+       
+        .sonic-heritage {
+            width: 90%;
+            max-width: 900px; 
+            min-height: 850px;
+            background: #fff;
+            border-radius: 15px; 
+            margin: 30px auto;
+            padding: 35px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15); 
+            position: relative;
+            overflow: hidden;
+        } 
+
+        .sonic-heritage::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: 800; 
+            text-align: center;
+            margin-top: 0;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 12px;
+            margin-top: 25px;
+            font-size: 1.8rem;
+        }
+        
+        p {
+            line-height: 1.7;
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin: 25px 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin: 15px 0;
+        }
+        
+        .file-input {
+            width: 0.1px;
+            height: 0.1px;
+            opacity: 0;
+            overflow: hidden;
+            position: absolute;
+            z-index: -1;
+        }
+        
+        .file-input-label {
+            display: inline-block;
+            padding: 15px 25px;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+        }
+        
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        .file-name {
+            margin-left: 15px;
+            font-style: italic;
+            color: #6c757d;
+        }
+        
+        button {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(106, 17, 203, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #loading, #successMessage, #errorMessage {
+            margin: 25px 0;
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        #loading {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        #successMessage {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        #errorMessage {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+        
+        .message-icon {
+            margin-right: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        audio {
+            margin: 25px 0;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .music-info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            min-width: 80px;
+            color: var(--dark-color);
+        }
+        
+        #previewImage {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .image-preview-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .debug-info {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .step-container {
+            margin: 25px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--info-color);
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: var(--info-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .requirements {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        
+        .requirements li {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .requirements li::before {
+            content: "•";
+            color: var(--primary-color);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        @media (max-width: 768px) {
+            .sonic-heritage {
+                padding: 25px;
+                margin: 15px auto;
+            }
+            
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            button {
+                width: 100%;
+                padding: 12px;
+            }
+            
+            .file-input-label {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .upload-status {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="sonic-heritage">
+        <div class="title">Sonic Heritage</div>
+        
+        <div class="step-container">
+            <h1><span class="step-number">1</span>简介</h1>
+            <p>本软件/网页的静态非遗转音乐系统，致力于给用户带来轻松又充满惊喜的非遗互动体验。你只需简单上传非遗物品图片，无需复杂操作，系统就能快速响应。生成的音乐不仅贴合非遗物品的气质，还能让你在聆听中，沉浸式感受非遗文化的奇妙跨界，极狐轻松开启一场非遗与音乐交融的趣味之旅。</p>
+        </div>
+        
+        <div class="step-container">
+            <h1><span class="step-number">2</span>图片上传</h1>
+            <p>上传静态非遗图片以生成音乐，图片要求如下：</p>
+            <ul class="requirements">
+                <li>图片包含静态非遗</li>
+                <li>图片清晰度在720p以上</li>
+                <li>画面不能太暗</li>
+            </ul>
+       
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="photoInput">选择非遗图片：</label>
+                    <div class="file-input-container">
+                        <input type="file" accept="image/*" name="file" id="photoInput" class="file-input" required>
+                        <label for="photoInput" class="file-input-label">
+                            <i class="fas fa-upload"></i>选择图片
+                        </label>
+                        <span id="fileName" class="file-name"></span>
+                    </div>
+                    
+                    <div class="image-preview-container">
+                        <img id="previewImage" src="" alt="图片预览">
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress" id="progressBar"></div>
+                    </div>
+                    <div class="upload-status">
+                        <span id="uploadStatus">等待上传</span>
+                        <span id="uploadPercent">0%</span>
+                    </div>
+                </div>
+                <button type="submit" id="submitBtn">
+                    <i class="fas fa-music"></i>上传并生成音乐
+                </button>
+            </form>
+        </div>
+        
+        <div id="loading" class="hidden">
+            <i class="fas fa-spinner fa-spin message-icon"></i>
+            <div>
+                <p>正在生成音乐，请稍候……</p>
+                <p>系统正在分析图片特征并生成对应音乐</p>
+            </div>
+        </div>
+        
+        <div id="successMessage" class="hidden">
+            <i class="fas fa-check-circle message-icon"></i>
+            <div>
+                <p>音乐已生成成功！点击下方播放按钮欣赏</p>
+                <div id="musicInfo" class="music-info">
+                    <div class="info-item">
+                        <span class="info-label">风格:</span>
+                        <span id="musicStyle"></span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">速度:</span>
+                        <span id="musicTempo"></span> BPM
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="errorMessage" class="hidden">
+            <i class="fas fa-exclamation-circle message-icon"></i>
+            <div>
+                <p id="errorText"></p>
+            </div>
+        </div>
+        
+        <div class="step-container">
+            <h1><span class="step-number">3</span>音乐输出</h1>
+            <audio id="player" controls type="audio/wav">您的浏览器不支持音频播放功能，请更新浏览器。</audio>
+        </div>
+        
+        <button id="toggleDebug">
+            <i class="fas fa-bug"></i>显示调试信息
+        </button>
+        
+        <div id="debugInfo" class="debug-info">
+            <div class="debug-header">
+                <h3>调试信息</h3>
+                <button id="clearDebug" style="padding: 5px 10px; font-size: 0.8rem;">
+                    <i class="fas fa-trash"></i>清除
+                </button>
+            </div>
+            <div id="debugContent"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadForm = document.getElementById('uploadForm');
+            const photoInput = document.getElementById('photoInput');
+            const fileName = document.getElementById('fileName');
+            const previewImage = document.getElementById('previewImage');
+            const progressBar = document.getElementById('progressBar');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const uploadPercent = document.getElementById('uploadPercent');
+            const loading = document.getElementById('loading');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            const player = document.getElementById('player');
+            const submitBtn = document.getElementById('submitBtn');
+            const musicInfo = document.getElementById('musicInfo');
+            const musicStyle = document.getElementById('musicStyle');
+            const musicTempo = document.getElementById('musicTempo');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugContent = document.getElementById('debugContent');
+            const toggleDebug = document.getElementById('toggleDebug');
+            const clearDebug = document.getElementById('clearDebug');
+            
+            let debugMode = false;
+            
+            // 切换调试信息显示
+            toggleDebug.addEventListener('click', function() {
+                debugMode = !debugMode;
+                debugInfo.style.display = debugMode ? 'block' : 'none';
+                toggleDebug.innerHTML = debugMode ? 
+                    '<i class="fas fa-bug"></i>隐藏调试信息' : 
+                    '<i class="fas fa-bug"></i>显示调试信息';
+            });
+            
+            // 清除调试信息
+            clearDebug.addEventListener('click', function() {
+                debugContent.innerHTML = '';
+                addDebugInfo('调试信息已清除');
+            });
+            
+            // 添加调试信息
+            function addDebugInfo(message) {
+                if (!debugMode) return;
+                
+                const now = new Date();
+                const timestamp = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
+                const debugEntry = document.createElement('div');
+                debugEntry.textContent = `[${timestamp}] ${message}`;
+                debugContent.appendChild(debugEntry);
+                debugContent.scrollTop = debugContent.scrollHeight;
+            }
+            
+            // 图片预览功能
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    fileName.textContent = file.name;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+                resetForm();
+            });
+            
+            // 显示错误信息
+            function showError(message) {
+                errorText.textContent = message;
+                errorMessage.classList.remove('hidden');
+                successMessage.classList.add('hidden');
+                loading.classList.add('hidden');
+                
+                addDebugInfo(`错误: ${message}`);
+                
+                setTimeout(() => {
+                    errorMessage.classList.add('hidden');
+                }, 5000);
+            }
+            
+            // 重置表单和状态
+            function resetForm() {
+                player.src = '';
+                progressBar.style.width = '0%';
+                uploadStatus.textContent = '等待上传';
+                uploadPercent.textContent = '0%';
+                musicInfo.classList.add('hidden');
+                successMessage.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+            }
+            
+            // 更新上传进度
+            function updateProgress(percent) {
+                progressBar.style.width = percent + '%';
+                uploadPercent.textContent = Math.round(percent) + '%';
+                uploadStatus.textContent = percent < 100 ? '上传中...' : '上传完成';
+            }
+            
+            // 表单提交处理 - 修复了请求方法错误
+            uploadForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const file = photoInput.files[0];
+                if (!file) {
+                    showError('请先选择图片');
+                    return;
+                }
+                
+                // 检查文件类型
+                const allowedExtensions = /(\.jpg|\.jpeg|\.png|\.bmp)$/i;
+                if (!allowedExtensions.exec(file.name)) {
+                    showError('请上传图片文件（jpg、jpeg、png或bmp格式）');
+                    return;
+                }
+                
+                // 检查文件大小
+                if (file.size > 15 * 1024 * 1024) {
+                    showError('图片文件大小不能超过15MB');
+                    return;
+                }
+
+                // 显示加载状态
+                loading.classList.remove('hidden');
+                successMessage.classList.add('hidden');
+                errorMessage.classList.add('hidden');
+                submitBtn.disabled = true;
+                
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                addDebugInfo(`开始上传文件: ${file.name} (${(file.size/1024/1024).toFixed(2)}MB)`);
+                
+                try {
+                    // 使用fetch API发送POST请求 - 这是修复的关键
+                    addDebugInfo('向 /upload 发送POST请求');
+                    
+                    // 创建AbortController以便在需要时取消请求
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 60000);
+                    
+                    const response = await fetch('/upload', {
+                        method: 'POST', // 使用POST方法而不是OPTIONS
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        },
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    addDebugInfo(`收到响应: ${response.status} ${response.statusText}`);
+                    
+                    // 检查响应状态
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        addDebugInfo(`错误响应内容: ${errorText}`);
+                        throw new Error(`服务器返回错误: ${response.status} ${response.statusText}`);
+                    }
+                    
+                    // 尝试解析JSON响应
+                    let data;
+                    try {
+                        data = await response.json();
+                        addDebugInfo(`响应JSON: ${JSON.stringify(data)}`);
+                    } catch (jsonError) {
+                        addDebugInfo(`JSON解析错误: ${jsonError.message}`);
+                        throw new Error('服务器返回了无效的JSON响应');
+                    }
+                    
+                    if (data.code !== 200) {
+                        throw new Error(data.msg || '生成音乐失败');
+                    }
+                    
+                    // 获取音乐文件URL
+                    let audioUrl;
+                    if (data.data.midiUrl.startsWith('http')) {
+                        audioUrl = data.data.midiUrl;
+                        addDebugInfo(`使用完整音频URL: ${audioUrl}`);
+                    } else {
+                        // 确保路径格式正确
+                        const cleanPath = data.data.midiUrl.replace(/^\/+/, '');
+                        // 使用当前页面的主机和端口
+                        const baseUrl = `${window.location.protocol}//${window.location.host}`;
+                        audioUrl = `${baseUrl}/${cleanPath}`;
+                        addDebugInfo(`构造音频URL: ${audioUrl}`);
+                    }
+                    
+                    // 直接设置音频源，让浏览器处理播放
+                    addDebugInfo(`设置音频源: ${audioUrl}`);
+                    player.src = audioUrl;
+                    player.classList.remove('hidden');
+                    
+                    // 设置oncanplay事件来处理播放就绪
+                    player.oncanplay = function() {
+                        addDebugInfo('音频已加载，可以播放');
+                    };
+                    
+                    // 设置onerror事件来处理音频加载错误
+                    player.onerror = function() {
+                        addDebugInfo('音频加载错误，尝试备用方法');
+                        // 尝试直接下载文件
+                        window.open(audioUrl, '_blank');
+                    };
+                    
+                    // 显示音乐信息
+                    if (data.data.style) {
+                        musicStyle.textContent = data.data.style;
+                        musicTempo.textContent = data.data.tempo;
+                        musicInfo.classList.remove('hidden');
+                    }
+                    
+                    // 更新UI状态
+                    loading.classList.add('hidden');
+                    successMessage.classList.remove('hidden');
+                    addDebugInfo('UI更新完成，显示成功消息');
+                    
+                } catch (error) {
+                    console.error('请求失败:', error);
+                    let errorMsg = error.message || '网络错误，请稍后重试';
+                    
+                    // 如果是网络错误，显示更友好的提示
+                    if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                        errorMsg = '无法连接到服务器，请检查后端服务是否启动';
+                    } else if (error.name === 'AbortError') {
+                        errorMsg = '请求超时，请稍后重试';
+                    }
+                    
+                    addDebugInfo(`捕获错误: ${errorMsg}`);
+                    showError(errorMsg);
+                } finally {
+                    submitBtn.disabled = false;
+                }
+            });
+            
+            // 初始化
+            addDebugInfo('页面初始化完成');
+        });
+    </script>
+</body>
+</html>
