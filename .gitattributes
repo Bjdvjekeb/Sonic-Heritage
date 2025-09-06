@@ -1,0 +1,2 @@
+muic_generation_model_final.pth filter=lfs diff=lfs merge=lfs -text
+music_generation_model_final.pth filter=lfs diff=lfs merge=lfs -text
